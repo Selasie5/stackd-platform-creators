@@ -70,31 +70,55 @@ export const SCHOOLS = [
 ] as const
 
 export const COUNTRIES = [
-  { value: 'Ghana', label: 'Ghana', flag: 'https://flagcdn.com/w40/gh.png' },
-  { value: 'Nigeria', label: 'Nigeria', flag: 'https://flagcdn.com/w40/ng.png' },
-  { value: 'Kenya', label: 'Kenya', flag: 'https://flagcdn.com/w40/ke.png' },
-  { value: 'South Africa', label: 'South Africa', flag: 'https://flagcdn.com/w40/za.png' },
-  { value: 'USA', label: 'USA', flag: 'https://flagcdn.com/w40/us.png' },
+  {
+    value: 'Ghana',
+    label: 'Ghana',
+    apiName: 'Ghana',
+    iso2: 'GH',
+    dialCode: '+233',
+    flag: 'https://flagcdn.com/w40/gh.png',
+  },
+  {
+    value: 'Nigeria',
+    label: 'Nigeria',
+    apiName: 'Nigeria',
+    iso2: 'NG',
+    dialCode: '+234',
+    flag: 'https://flagcdn.com/w40/ng.png',
+  },
+  {
+    value: 'Kenya',
+    label: 'Kenya',
+    apiName: 'Kenya',
+    iso2: 'KE',
+    dialCode: '+254',
+    flag: 'https://flagcdn.com/w40/ke.png',
+  },
+  {
+    value: 'South Africa',
+    label: 'South Africa',
+    apiName: 'South Africa',
+    iso2: 'ZA',
+    dialCode: '+27',
+    flag: 'https://flagcdn.com/w40/za.png',
+  },
+  {
+    value: 'USA',
+    label: 'USA',
+    apiName: 'United States',
+    iso2: 'US',
+    dialCode: '+1',
+    flag: 'https://flagcdn.com/w40/us.png',
+  },
 ] as const
 
-export const BANKS = [
-  'GTBank',
-  'Access Bank',
-  'Zenith Bank',
-  'First Bank',
-  'UBA',
-  'Ecobank',
-  'GCB Bank',
-  'Stanbic Bank',
-  'Fidelity Bank',
-] as const
+export type CountryValue = (typeof COUNTRIES)[number]['value']
 
-export const MOBILE_MONEY_PROVIDERS = [
-  'MTN MoMo',
-  'AirtelTigo Money',
-  'Vodafone Cash',
-  'M-Pesa',
-] as const
+export function getCountryByValue(value: string) {
+  return COUNTRIES.find((country) => country.value === value)
+}
+
+export { BANKS, MOBILE_MONEY_PROVIDERS } from './payment-providers'
 
 export const ONBOARDING_STEPS = [
   { id: 1, label: 'Personal details' },

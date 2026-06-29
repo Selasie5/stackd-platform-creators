@@ -8,6 +8,7 @@ interface SearchableSelectProps {
   options: readonly string[]
   placeholder?: string
   allowCustom?: boolean
+  disabled?: boolean
   id?: string
 }
 
@@ -17,6 +18,7 @@ export function SearchableSelect({
   options,
   placeholder = 'Search or select…',
   allowCustom = true,
+  disabled = false,
   id,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false)
@@ -51,18 +53,21 @@ export function SearchableSelect({
         <input
           id={id}
           value={query}
+          disabled={disabled}
           onChange={(e) => {
             setQuery(e.target.value)
             setOpen(true)
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            if (!disabled) setOpen(true)
+          }}
           placeholder={placeholder}
-          className="h-11 w-full rounded-xl border border-zinc-200 bg-transparent px-4 pr-10 text-sm outline-none focus:border-zinc-400 focus:ring-[3px] focus:ring-zinc-200/60 dark:border-zinc-800"
+          className="h-11 w-full rounded-xl border border-zinc-200 bg-transparent px-4 pr-10 text-sm outline-none focus:border-zinc-400 focus:ring-[3px] focus:ring-zinc-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800"
         />
         <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
       </div>
 
-      {open && (filtered.length > 0 || showCustom) && (
+      {open && !disabled && (filtered.length > 0 || showCustom) && (
         <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950">
           {filtered.map((opt) => (
             <button

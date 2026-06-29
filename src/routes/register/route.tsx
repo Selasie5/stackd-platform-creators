@@ -1,7 +1,6 @@
-import * as React from 'react'
+import type { FormEvent } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-import { toast } from 'sonner'
 import { AuthShell } from '@/components/auth-shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,9 +8,12 @@ import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
 import { EMPTY_SIGNUP, type SignupDraft } from '@/lib/onboarding/types'
 import { usePersistedState } from '@/lib/onboarding/storage'
+import { useRegisterCreator } from '@/hooks/use-auth'
 
 const registerSearchSchema = z.object({
   step: z.coerce.number().int().min(1).max(2).optional(),
+  action: z.enum(['verify-email']).optional(),
+  email: z.string().email().optional(),
 })
 
 export const Route = createFileRoute('/register')({
@@ -23,7 +25,7 @@ function RegisterRoute() {
   const { step = 1 } = Route.useSearch()
   const navigate = useNavigate()
   const [form, setForm] = usePersistedState<SignupDraft>('creator-signup-draft', EMPTY_SIGNUP)
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const { registerCreator, loading: isSubmitting } = useRegisterCreator()
 
   const setStep = (newStep: number) => {
     navigate({ to: '/register', search: { step: newStep } })
@@ -33,19 +35,19 @@ function RegisterRoute() {
     setForm((prev) => ({ ...prev, ...patch }))
   }
 
-  const handleStep1 = (e: React.FormEvent) => {
+  const handleStep1 = (e: FormEvent) => {
     e.preventDefault()
     setStep(2)
   }
 
-  const handleStep2 = async (e: React.FormEvent) => {
+  const handleStep2 = async (e: FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setIsSubmitting(false)
+    await registerCreator({
+      email: form.email,
+      password: form.password,
+      fullName: form.fullName,
+    })
     localStorage.removeItem('creator-signup-draft')
-    toast.success('Account created! Complete your creator profile.')
-    navigate({ to: '/onboarding/creator', search: { step: 1 } })
   }
 
   return (

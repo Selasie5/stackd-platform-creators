@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { MAX_SAMPLES, SAMPLE_CATEGORIES } from '@/lib/onboarding/constants'
 import { createId, validateVideoFile } from '@/lib/onboarding/storage'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 import type { SampleVideoDraft } from '@/lib/onboarding/types'
 
 interface SampleVideoUploaderProps {
@@ -56,11 +57,20 @@ export function SampleVideoUploader({ samples, onChange, fileMapRef }: SampleVid
       return next
     })
 
-    await new Promise((r) => setTimeout(r, 600))
-
-    fileMapRef.current.set(id, file)
-    updateSample(id, { fileName: file.name, fileSize: file.size, externalLink: '' })
-    setUploadingId(null)
+    try {
+      const videoUrl = await uploadToCloudinary(file)
+      fileMapRef.current.delete(id)
+      updateSample(id, {
+        fileName: file.name,
+        fileSize: file.size,
+        videoUrl,
+        externalLink: '',
+      })
+    } catch {
+      setErrors((prev) => ({ ...prev, [id]: 'Upload failed. Please try again.' }))
+    } finally {
+      setUploadingId(null)
+    }
   }
 
   return (
@@ -150,6 +160,7 @@ export function SampleVideoUploader({ samples, onChange, fileMapRef }: SampleVid
                 updateSample(sample.id, {
                   externalLink: e.target.value,
                   fileName: e.target.value ? undefined : sample.fileName,
+                  videoUrl: e.target.value ? undefined : sample.videoUrl,
                 })
               }
               placeholder="https://tiktok.com/…"

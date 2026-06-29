@@ -1,15 +1,22 @@
 import * as React from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-import { toast } from 'sonner'
 import { AuthShell } from '@/components/auth-shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
+import {
+  useLogin,
+  useRequestPasswordReset,
+  useResendVerificationEmail,
+  useResetPassword,
+} from '@/hooks/use-auth'
 
 const searchSchema = z.object({
-  action: z.enum(['forgot-password', 'check-email', 'reset-password']).optional(),
+  action: z
+    .enum(['forgot-password', 'check-email', 'reset-password', 'verify-email'])
+    .optional(),
   email: z.string().email().optional(),
 })
 
@@ -21,6 +28,10 @@ export const Route = createFileRoute('/signin')({
 function SignInRoute() {
   const { action, email: emailFromSearch } = Route.useSearch()
   const navigate = useNavigate()
+  const { login, loading: loginLoading } = useLogin()
+  const { requestReset, loading: resetRequestLoading } = useRequestPasswordReset()
+  const { resetPassword, loading: resetLoading } = useResetPassword()
+  const { resendEmail, loading: resendLoading } = useResendVerificationEmail()
 
   const [email, setEmail] = React.useState(emailFromSearch ?? '')
   const [password, setPassword] = React.useState('')
@@ -29,7 +40,6 @@ function SignInRoute() {
   const [otp, setOtp] = React.useState(['', '', '', '', '', ''])
   const [otpError, setOtpError] = React.useState('')
   const [passwordError, setPasswordError] = React.useState('')
-  const [isLoading, setIsLoading] = React.useState(false)
   const otpInputRefs = React.useRef<Array<HTMLInputElement | null>>([])
 
   React.useEffect(() => {
@@ -63,11 +73,7 @@ function SignInRoute() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 600))
-    setIsLoading(false)
-    toast.success('Signed in!')
-    navigate({ to: '/' })
+    await login({ email, password })
   }
 
   if (action === 'forgot-password') {
@@ -84,10 +90,10 @@ function SignInRoute() {
       >
         <form
           className="space-y-5"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault()
-            toast.success('Verification code sent.')
-            goTo('check-email')
+            const ok = await requestReset(email)
+            if (ok) goTo('check-email')
           }}
         >
           <div className="space-y-2">
@@ -101,7 +107,7 @@ function SignInRoute() {
               required
             />
           </div>
-          <Button type="submit" variant="auth" size="auth">
+          <Button type="submit" variant="auth" size="auth" isLoading={resetRequestLoading}>
             Send verification code
           </Button>
         </form>
@@ -160,7 +166,7 @@ function SignInRoute() {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => toast.success('Verification code resent.')}
+              onClick={() => void requestReset(email)}
               className="text-xs font-semibold text-zinc-500 underline underline-offset-4 hover:text-zinc-900"
             >
               Resend verification code?
@@ -185,15 +191,15 @@ function SignInRoute() {
       >
         <form
           className="space-y-5"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault()
             if (newPassword !== confirmPassword) {
               setPasswordError('Passwords do not match.')
               return
             }
             setPasswordError('')
-            toast.success('Password reset. Please sign in.')
-            goTo(undefined)
+            const ok = await resetPassword(email, otp.join(''), newPassword)
+            if (ok) goTo(undefined)
           }}
         >
           <div className="space-y-2">
@@ -223,9 +229,43 @@ function SignInRoute() {
             />
           </div>
           {passwordError && <p className="text-xs text-red-600">{passwordError}</p>}
-          <Button type="submit" variant="auth" size="auth">
+          <Button type="submit" variant="auth" size="auth" isLoading={resetLoading}>
             Reset password
           </Button>
+        </form>
+      </AuthShell>
+    )
+  }
+
+  if (action === 'verify-email') {
+    return (
+      <AuthShell
+        title="Verify your email address"
+        subtitle="We've sent a verification link to your email. Click the link in your inbox to activate your account and continue."
+        topRightText="Remember your password?"
+        topRightLinkText="Sign In"
+        topRightLinkTo="/signin"
+      >
+        <form
+          className="space-y-6"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            await resendEmail(email)
+          }}
+        >
+          <div className="space-y-4 pt-4 text-center">
+            <Button type="submit" variant="auth" size="auth" isLoading={resendLoading}>
+              Resend verification email
+            </Button>
+            <div>
+              <Link
+                to="/signin"
+                className="text-xs font-semibold text-zinc-500 underline underline-offset-4 transition-colors hover:text-zinc-900"
+              >
+                I&apos;ve verified my email
+              </Link>
+            </div>
+          </div>
         </form>
       </AuthShell>
     )
@@ -271,7 +311,7 @@ function SignInRoute() {
           />
         </div>
 
-        <Button type="submit" variant="auth" size="auth" isLoading={isLoading}>
+        <Button type="submit" variant="auth" size="auth" isLoading={loginLoading}>
           Sign in
         </Button>
       </form>

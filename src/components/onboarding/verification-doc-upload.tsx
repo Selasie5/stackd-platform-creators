@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { createId, validateDocFile } from '@/lib/onboarding/storage'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 import type { VerificationDocDraft, VerificationDocType } from '@/lib/onboarding/types'
 
 const DOC_TYPES: { id: VerificationDocType; label: string; description: string }[] = [
@@ -61,18 +62,23 @@ export function VerificationDocUpload({
       return next
     })
 
-    await new Promise((r) => setTimeout(r, 500))
-
-    const id = getDoc(type)?.id ?? createId()
-    fileMapRef.current.set(id, file)
-    const nextDoc: VerificationDocDraft = {
-      id,
-      type,
-      fileName: file.name,
-      fileSize: file.size,
+    try {
+      const fileUrl = await uploadToCloudinary(file)
+      const id = getDoc(type)?.id ?? createId()
+      fileMapRef.current.delete(id)
+      const nextDoc: VerificationDocDraft = {
+        id,
+        type,
+        fileName: file.name,
+        fileSize: file.size,
+        fileUrl,
+      }
+      onDocsChange([...docs.filter((d) => d.type !== type), nextDoc])
+    } catch {
+      setErrors((prev) => ({ ...prev, [type]: 'Upload failed. Please try again.' }))
+    } finally {
+      setUploadingId(null)
     }
-    onDocsChange([...docs.filter((d) => d.type !== type), nextDoc])
-    setUploadingId(null)
   }
 
   const removeDoc = (type: VerificationDocType) => {

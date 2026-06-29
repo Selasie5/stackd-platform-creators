@@ -14,6 +14,7 @@ export interface SampleVideoDraft {
   note: string
   fileName?: string
   fileSize?: number
+  videoUrl?: string
 }
 
 export interface VerificationDocDraft {
@@ -21,6 +22,7 @@ export interface VerificationDocDraft {
   type: VerificationDocType
   fileName?: string
   fileSize?: number
+  fileUrl?: string
   note?: string
 }
 
@@ -29,7 +31,8 @@ export interface CreatorOnboardingDraft {
   school: string
   country: string
   city: string
-  phone: string
+  phoneDialCode: string
+  phoneNumber: string
   bio: string
   mainNiche: string
   otherNiches: string[]
@@ -63,7 +66,8 @@ export const EMPTY_ONBOARDING: CreatorOnboardingDraft = {
   school: '',
   country: '',
   city: '',
-  phone: '',
+  phoneDialCode: '',
+  phoneNumber: '',
   bio: '',
   mainNiche: '',
   otherNiches: [],

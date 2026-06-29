@@ -1,10 +1,11 @@
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { BrandLogo } from '@/components/ui/brand-logo'
 import { cn } from '@/lib/utils'
-import { BANKS, MOBILE_MONEY_PROVIDERS } from '@/lib/onboarding/constants'
+import { BANKS, MOBILE_MONEY_PROVIDERS } from '@/lib/onboarding/payment-providers'
 import type { PaymentMethod } from '@/lib/onboarding/types'
-import { ShieldCheck } from 'lucide-react'
+import { Landmark, ShieldCheck, Smartphone, type LucideIcon } from 'lucide-react'
 
 interface PaymentDetailsFormProps {
   paymentMethod: PaymentMethod | ''
@@ -27,29 +28,56 @@ export function PaymentDetailsForm({
   onPaymentMethodChange,
   onFieldChange,
 }: PaymentDetailsFormProps) {
-  const methods: { id: PaymentMethod; label: string }[] = [
-    { id: 'bank_transfer', label: 'Bank transfer' },
-    { id: 'mobile_money', label: 'Mobile money' },
+  const methods: {
+    id: PaymentMethod
+    label: string
+    Icon: LucideIcon
+  }[] = [
+    {
+      id: 'bank_transfer',
+      label: 'Bank transfer',
+      Icon: Landmark,
+    },
+    {
+      id: 'mobile_money',
+      label: 'Mobile money',
+      Icon: Smartphone,
+    },
   ]
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
-        {methods.map((method) => (
+        {methods.map((method) => {
+          const Icon = method.Icon
+          const selected = paymentMethod === method.id
+
+          return (
           <button
             key={method.id}
             type="button"
             onClick={() => onPaymentMethodChange(method.id)}
             className={cn(
-              'rounded-xl border px-4 py-3 text-sm font-medium transition-all',
-              paymentMethod === method.id
-                ? 'border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900'
+              'flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all',
+              selected
+                ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                 : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-800',
             )}
           >
+            <span
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                selected
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300',
+              )}
+            >
+              <Icon className="h-4 w-4" />
+            </span>
             {method.label}
           </button>
-        ))}
+          )
+        })}
       </div>
 
       {paymentMethod === 'bank_transfer' && (
@@ -60,7 +88,11 @@ export function PaymentDetailsForm({
               value={bankName}
               onChange={(val) => onFieldChange('bankName', val)}
               placeholder="Select bank"
-              options={BANKS.map((b) => ({ value: b, label: b }))}
+              options={BANKS.map((bank) => ({
+                value: bank.value,
+                label: bank.label,
+                icon: <BrandLogo src={bank.logo} name={bank.label} domain={bank.domain} />,
+              }))}
             />
           </div>
           <div className="space-y-2">
@@ -97,7 +129,17 @@ export function PaymentDetailsForm({
               value={mobileProvider}
               onChange={(val) => onFieldChange('mobileProvider', val)}
               placeholder="Select provider"
-              options={MOBILE_MONEY_PROVIDERS.map((p) => ({ value: p, label: p }))}
+              options={MOBILE_MONEY_PROVIDERS.map((provider) => ({
+                value: provider.value,
+                label: provider.label,
+                icon: (
+                  <BrandLogo
+                    src={provider.logo}
+                    name={provider.label}
+                    domain={provider.domain}
+                  />
+                ),
+              }))}
             />
           </div>
           <div className="space-y-2">

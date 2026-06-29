@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { ChevronRight } from 'lucide-react'
 import { OnboardingShell } from '@/components/onboarding/onboarding-shell'
+import { OnboardingSuccess } from '@/components/onboarding/onboarding-success'
+import { CitySelect } from '@/components/onboarding/city-select'
 import { SearchableSelect } from '@/components/onboarding/searchable-select'
 import { NicheSelector } from '@/components/onboarding/niche-selector'
 import { ChipMultiSelect } from '@/components/onboarding/chip-multi-select'
@@ -12,6 +14,7 @@ import { PaymentDetailsForm } from '@/components/onboarding/payment-details-form
 import { VerificationDocUpload } from '@/components/onboarding/verification-doc-upload'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
@@ -19,12 +22,15 @@ import {
   AVAILABILITY_OPTIONS,
   COUNTRIES,
   EQUIPMENT,
+  getCountryByValue,
   LANGUAGES,
   MAX_BIO_LENGTH,
   SCHOOLS,
 } from '@/lib/onboarding/constants'
 import { createId, usePersistedState } from '@/lib/onboarding/storage'
 import { EMPTY_ONBOARDING, type CreatorOnboardingDraft } from '@/lib/onboarding/types'
+import { useMe } from '@/hooks/use-auth'
+import { useCompleteCreatorOnboarding } from '@/hooks/use-creator-onboarding'
 
 const onboardingSearchSchema = z.object({
   step: z.coerce.number().int().min(1).max(6).optional(),
@@ -43,8 +49,23 @@ function CreatorOnboardingRoute() {
     EMPTY_ONBOARDING,
   )
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [showSuccess, setShowSuccess] = React.useState(false)
+  const [successSkippedKyc, setSuccessSkippedKyc] = React.useState(false)
+  const { data: meData, loading: meLoading } = useMe()
+  const { completeOnboarding } = useCompleteCreatorOnboarding()
   const sampleFilesRef = React.useRef(new Map<string, File>())
   const docFilesRef = React.useRef(new Map<string, File>())
+
+  React.useEffect(() => {
+    if (meLoading) return
+    if (!meData?.me) {
+      navigate({ to: '/signin' })
+      return
+    }
+    if (meData.me.creator?.isProfileComplete) {
+      navigate({ to: '/dashboard/overview' })
+    }
+  }, [meData?.me, meLoading, navigate])
 
   React.useEffect(() => {
     if (form.samples.length === 0) {
@@ -66,7 +87,14 @@ function CreatorOnboardingRoute() {
   const validateStep = (currentStep: number): boolean => {
     switch (currentStep) {
       case 1:
-        if (!form.fullName || !form.school || !form.country || !form.city || !form.phone) {
+        if (
+          !form.fullName ||
+          !form.school ||
+          !form.country ||
+          !form.city ||
+          !form.phoneDialCode ||
+          !form.phoneNumber.trim()
+        ) {
           toast.error('Please fill in all personal details.')
           return false
         }
@@ -91,10 +119,7 @@ function CreatorOnboardingRoute() {
       }
       case 4: {
         const validSample = form.samples.some(
-          (s) =>
-            s.title &&
-            s.category &&
-            (s.externalLink || s.fileName || sampleFilesRef.current.has(s.id)),
+          (s) => s.title && s.category && (s.externalLink || s.videoUrl),
         )
         if (!validSample) {
           toast.error('Add at least one complete sample video.')
@@ -137,34 +162,29 @@ function CreatorOnboardingRoute() {
     return true
   }
 
-  const completeOnboarding = async (skippedKyc: boolean) => {
+  const finishOnboarding = async (skippedKyc: boolean) => {
     update({ kycSkipped: skippedKyc })
     setIsSubmitting(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    setIsSubmitting(false)
-    localStorage.removeItem('creator-onboarding-draft')
-    toast.success(
-      skippedKyc
-        ? 'Profile saved! You can complete KYC anytime from your profile.'
-        : 'Verification submitted! We will review your documents shortly.',
+    const ok = await completeOnboarding(
+      { ...form, kycSkipped: skippedKyc },
+      { skipKyc: skippedKyc },
     )
-    navigate({ to: '/' })
-  }
+    setIsSubmitting(false)
+    if (!ok) return
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateStep(step)) return
-    if (step < 6) setStep(step + 1)
+    localStorage.removeItem('creator-onboarding-draft')
+    setSuccessSkippedKyc(skippedKyc)
+    setShowSuccess(true)
   }
 
   const handleKycSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateKycSubmission()) return
-    await completeOnboarding(false)
+    await finishOnboarding(false)
   }
 
   const handleKycSkip = async () => {
-    await completeOnboarding(true)
+    await finishOnboarding(true)
   }
 
   const stepConfig = {
@@ -195,6 +215,29 @@ function CreatorOnboardingRoute() {
   } as const
 
   const config = stepConfig[step as keyof typeof stepConfig]
+
+  if (meLoading || !meData?.me) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F6F8] text-sm text-zinc-500">
+        Loading onboarding…
+      </div>
+    )
+  }
+
+  if (showSuccess) {
+    return (
+      <OnboardingSuccess
+        skippedKyc={successSkippedKyc}
+        onContinue={() => navigate({ to: '/dashboard/overview' })}
+      />
+    )
+  }
+
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validateStep(step)) return
+    if (step < 6) setStep(step + 1)
+  }
 
   return (
     <OnboardingShell
@@ -232,7 +275,14 @@ function CreatorOnboardingRoute() {
                 <Label>Country</Label>
                 <Select
                   value={form.country}
-                  onChange={(val) => update({ country: val })}
+                  onChange={(val) => {
+                    const country = getCountryByValue(val)
+                    update({
+                      country: val,
+                      city: '',
+                      phoneDialCode: country?.dialCode ?? form.phoneDialCode,
+                    })
+                  }}
                   placeholder="Select country"
                   options={COUNTRIES.map((c) => ({
                     value: c.value,
@@ -243,22 +293,22 @@ function CreatorOnboardingRoute() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">City</Label>
-                <Input
+                <CitySelect
                   id="city"
+                  country={form.country}
                   value={form.city}
-                  onChange={(e) => update({ city: e.target.value })}
-                  required
+                  onChange={(val) => update({ city: val })}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone number</Label>
-              <Input
+              <PhoneInput
                 id="phone"
-                type="tel"
-                value={form.phone}
-                onChange={(e) => update({ phone: e.target.value })}
-                placeholder="+233 XX XXX XXXX"
+                dialCode={form.phoneDialCode}
+                number={form.phoneNumber}
+                onDialCodeChange={(val) => update({ phoneDialCode: val })}
+                onNumberChange={(val) => update({ phoneNumber: val })}
                 required
               />
             </div>

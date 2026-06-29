@@ -16,5 +16,9 @@ interface PostHogProviderProps {
 }
 
 export default function PostHogProvider({ children }: PostHogProviderProps) {
+  if (typeof window === 'undefined' || !import.meta.env.VITE_POSTHOG_KEY) {
+    return <>{children}</>
+  }
+
   return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>
 }

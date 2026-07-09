@@ -20,6 +20,7 @@ export interface CreatorProfile {
   city?: string | null
   phone?: string | null
   bio?: string | null
+  profileImage?: string | null
   mainNiche?: string | null
   isProfileComplete: boolean
   kycStatus: string

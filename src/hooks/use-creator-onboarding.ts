@@ -5,6 +5,7 @@ import { UPDATE_CREATOR_PROFILE_MUTATION, UPDATE_PAYMENT_DETAILS_MUTATION } from
 import { SUBMIT_KYC_MUTATION } from '@/graphql/kyc'
 import { extractGqlError } from '@/lib/gql-error'
 import type { CreatorOnboardingDraft } from '@/lib/onboarding/types'
+import { formatStoredPhone } from '@/lib/onboarding/phone'
 import { getBankByValue } from '@/lib/onboarding/payment-providers'
 
 interface CreatorSampleInput {
@@ -16,7 +17,7 @@ interface CreatorSampleInput {
 }
 
 function buildProfileInput(form: CreatorOnboardingDraft) {
-  const phone = [form.phoneDialCode, form.phoneNumber.trim()].filter(Boolean).join(' ').trim()
+  const phone = formatStoredPhone(form.phoneDialCode, form.phoneNumber)
 
   const samples: CreatorSampleInput[] = form.samples
     .filter(
@@ -81,11 +82,13 @@ function buildKycInput(form: CreatorOnboardingDraft) {
       note: doc.type === 'other' ? form.otherDocNote || doc.note : doc.note,
     }))
 
-  if (documents.length === 0) return null
+  const schoolEmail = form.schoolEmail.trim() || undefined
+
+  if (documents.length === 0 && !schoolEmail) return null
 
   return {
     documents,
-    schoolEmail: form.schoolEmail.trim() || undefined,
+    schoolEmail,
     applicantNote: form.otherDocNote.trim() || undefined,
   }
 }
@@ -106,9 +109,11 @@ export function useCompleteCreatorOnboarding() {
 
       if (!options?.skipKyc) {
         const kycInput = buildKycInput(form)
-        if (kycInput) {
-          await submitKyc({ variables: { input: kycInput } })
+        if (!kycInput) {
+          toast.error('Upload a verification document or enter your school email.')
+          return false
         }
+        await submitKyc({ variables: { input: kycInput } })
       }
 
       return true

@@ -16,6 +16,7 @@ export const ME_QUERY = gql`
         city
         phone
         bio
+        profileImage
         mainNiche
         isProfileComplete
         kycStatus

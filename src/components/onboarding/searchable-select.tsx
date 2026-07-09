@@ -93,7 +93,7 @@ export function SearchableSelect({
                 onChange(query.trim())
                 setOpen(false)
               }}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
             >
               <Plus className="h-4 w-4" />
               Use &quot;{query.trim()}&quot;

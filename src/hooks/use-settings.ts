@@ -64,9 +64,7 @@ export interface ActiveSession {
 }
 
 export function useCreatorProfile() {
-  return useQuery<{ creator: CreatorProfile | null }>(CREATOR_PROFILE_QUERY, {
-    fetchPolicy: 'cache-and-network',
-  })
+  return useQuery<{ creator: CreatorProfile | null }>(CREATOR_PROFILE_QUERY)
 }
 
 export function useUpdateCreatorProfile() {

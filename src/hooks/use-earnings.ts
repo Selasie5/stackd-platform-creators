@@ -41,7 +41,6 @@ export function useEarnings(filters: EarningsFilters) {
   )
   const paymentsQuery = useQuery<{ myPayments: CreatorPayment[] }>(MY_PAYMENTS_FULL_QUERY, {
     variables: filters.status === 'all' ? {} : { status: filters.status },
-    fetchPolicy: 'cache-and-network',
   })
   const paymentDetailsQuery = useQuery<{ myPaymentDetails: Record<string, string | boolean | null> | null }>(
     MY_PAYMENT_DETAILS_QUERY,

@@ -455,7 +455,7 @@ function PaymentDetailsSection({
     refetch,
   } = useQuery<{
     myPaymentDetails: PaymentDetails | null
-  }>(MY_PAYMENT_DETAILS_QUERY, { fetchPolicy: 'cache-and-network' })
+  }>(MY_PAYMENT_DETAILS_QUERY)
   const savedDetails = data?.myPaymentDetails ?? null
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod | ''>(
     '',

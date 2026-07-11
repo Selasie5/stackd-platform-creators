@@ -42,7 +42,6 @@ export function useLiveOpportunities(options?: { previewLimit?: number }) {
 
   const query = useQuery<LiveOpportunitiesQueryResult>(LIVE_OPPORTUNITIES_QUERY, {
     skip: meLoading || !isCreator,
-    fetchPolicy: 'cache-and-network',
   })
 
   const allOpportunities: LiveOpportunity[] = mergeLiveOpportunities({

@@ -23,14 +23,12 @@ export function useOpportunitiesBrowse() {
 
   const query = useQuery<BrowseQueryResult>(LIVE_OPPORTUNITIES_BROWSE_QUERY, {
     skip: meLoading || !isCreator,
-    fetchPolicy: 'cache-and-network',
   })
 
   const submissionsQuery = useQuery<{ myContestSubmissions: Array<{ id: string; contestId: string }> }>(
     MY_CONTEST_SUBMISSIONS_IDS_QUERY,
     {
       skip: meLoading || !isCreator || !kycApproved,
-      fetchPolicy: 'cache-and-network',
       errorPolicy: 'ignore',
     },
   )
@@ -125,7 +123,6 @@ export function useContestDetail(contestId: string) {
   }>(CONTEST_DETAIL_QUERY, {
     variables: { id: contestId },
     skip: !contestId,
-    fetchPolicy: 'cache-and-network',
   })
 
   const submissionsQuery = useQuery<{
@@ -139,7 +136,6 @@ export function useContestDetail(contestId: string) {
     }>
   }>(MY_CONTEST_SUBMISSIONS_IDS_QUERY, {
     skip: !contestId || !kycApproved,
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 

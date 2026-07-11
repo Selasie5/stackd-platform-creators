@@ -16,7 +16,6 @@ export function useConversation(
   return useQuery<{ conversation: Message[] }>(CONVERSATION_QUERY, {
     variables: { referenceType, referenceId, limit: 100 },
     skip: options?.skip || !referenceType || !referenceId,
-    fetchPolicy: 'cache-and-network',
   })
 }
 

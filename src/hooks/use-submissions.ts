@@ -19,9 +19,7 @@ export function useMySubmissions() {
     myUgcSubmissions: RawUgcSubmission[]
     myCpmSubmissions: RawCpmSubmission[]
     myContestSubmissions: RawContestSubmission[]
-  }>(MY_SUBMISSIONS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-  })
+  }>(MY_SUBMISSIONS_QUERY)
 
   const allSubmissions = query.data
     ? mergeSubmissions({

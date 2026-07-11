@@ -46,9 +46,7 @@ export function VerificationSettingsPanel({
   const docFilesRef = React.useRef(new Map<string, File>())
   const { data: paymentData, loading: paymentLoading } = useQuery<{
     myPaymentDetails: PaymentDetails | null
-  }>(MY_PAYMENT_DETAILS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-  })
+  }>(MY_PAYMENT_DETAILS_QUERY)
   const [submitKyc, { loading }] = useMutation(SUBMIT_KYC_MUTATION, {
     refetchQueries: [{ query: ME_QUERY }],
   })

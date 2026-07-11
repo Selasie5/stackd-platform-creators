@@ -36,19 +36,16 @@ export function useDashboardOverview() {
 
   const walletQuery = useQuery<{ myCreatorWallet: CreatorWallet }>(MY_CREATOR_WALLET_QUERY, {
     skip: skipData,
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 
   const withdrawalsQuery = useQuery<{ myWithdrawals: WithdrawalRecord[] }>(MY_WITHDRAWALS_QUERY, {
     skip: skipData,
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 
   const paymentsQuery = useQuery<{ myPayments: CreatorPaymentRecord[] }>(MY_PAYMENTS_QUERY, {
     skip: skipData,
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 
@@ -58,7 +55,6 @@ export function useDashboardOverview() {
     myContestSubmissions: ContestSubmissionRecord[]
   }>(MY_SUBMISSIONS_OVERVIEW_QUERY, {
     skip: skipData,
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 
@@ -71,7 +67,6 @@ export function useDashboardOverview() {
   const notificationsQuery = useQuery<{ myNotifications: RecentActivityItem[] }>(
     MY_NOTIFICATIONS_QUERY,
     {
-      fetchPolicy: 'cache-and-network',
       errorPolicy: 'ignore',
     },
   )

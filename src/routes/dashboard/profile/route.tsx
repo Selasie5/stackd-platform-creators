@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useQuery } from '@apollo/client/react'
+import { toast } from 'sonner'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -16,6 +17,7 @@ import { PaymentDetailsForm } from '@/components/onboarding/payment-details-form
 import { SampleVideoUploader } from '@/components/onboarding/sample-video-uploader'
 import { SearchableSelect } from '@/components/onboarding/searchable-select'
 import { ProfilePhotoUpload } from '@/components/profile/profile-photo-upload'
+import { SocialHandleInput } from '@/components/profile/social-handle-input'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/phone-input'
@@ -155,10 +157,41 @@ function ProfileEditSections({
   const { updateProfile, loading } = useUpdateCreatorProfile()
   const sampleFileMapRef = React.useRef(new Map<string, File>())
   const [form, setForm] = React.useState(() => buildProfileFormState(creator))
+  const [validatedHandles, setValidatedHandles] = React.useState<Record<string, boolean>>(() => ({
+    tiktok: !!creator.tiktokHandle,
+    instagram: !!creator.instagramHandle,
+    youtube: !!creator.youtubeHandle,
+  }))
 
   if (!creator) return null
 
+  const handleValidationResult = React.useCallback(
+    (platform: string) => (result: { valid: boolean } | null) => {
+      setValidatedHandles((prev) => ({ ...prev, [platform]: result?.valid === true }))
+    },
+    [],
+  )
+
   const handleSaveProfile = () => {
+    const platformKeys = ['tiktok', 'instagram', 'youtube'] as const
+    const platformFields = {
+      tiktok: form.tiktokHandle,
+      instagram: form.instagramHandle,
+      youtube: form.youtubeHandle,
+    } as const
+
+    const unvalidated = platformKeys.filter(
+      (p) => platformFields[p] && platformFields[p]!.trim() && !validatedHandles[p],
+    )
+
+    if (unvalidated.length > 0) {
+      const names = { tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube' }
+      toast.error(
+        `Fix the format of: ${unvalidated.map((p) => names[p]).join(', ')}`,
+      )
+      return
+    }
+
     void updateProfile({
       fullName: form.fullName,
       school: form.school,
@@ -325,33 +358,27 @@ function ProfileEditSections({
           <h2 className="text-sm font-semibold text-zinc-900">Social handles</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <Field label="TikTok" id="tiktok">
-              <Input
-                id="tiktok"
+              <SocialHandleInput
+                platform="tiktok"
                 value={form.tiktokHandle}
-                placeholder="@username"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, tiktokHandle: e.target.value }))
-                }
+                onChange={(v) => setForm((f) => ({ ...f, tiktokHandle: v }))}
+                onValidationResult={handleValidationResult('tiktok')}
               />
             </Field>
             <Field label="Instagram" id="instagram">
-              <Input
-                id="instagram"
+              <SocialHandleInput
+                platform="instagram"
                 value={form.instagramHandle}
-                placeholder="@username"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, instagramHandle: e.target.value }))
-                }
+                onChange={(v) => setForm((f) => ({ ...f, instagramHandle: v }))}
+                onValidationResult={handleValidationResult('instagram')}
               />
             </Field>
             <Field label="YouTube" id="youtube">
-              <Input
-                id="youtube"
+              <SocialHandleInput
+                platform="youtube"
                 value={form.youtubeHandle}
-                placeholder="@channel"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, youtubeHandle: e.target.value }))
-                }
+                onChange={(v) => setForm((f) => ({ ...f, youtubeHandle: v }))}
+                onValidationResult={handleValidationResult('youtube')}
               />
             </Field>
           </div>

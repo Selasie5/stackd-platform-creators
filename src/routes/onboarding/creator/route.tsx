@@ -12,6 +12,7 @@ import { ChipMultiSelect } from '@/components/onboarding/chip-multi-select'
 import { SampleVideoUploader } from '@/components/onboarding/sample-video-uploader'
 import { PaymentDetailsForm } from '@/components/onboarding/payment-details-form'
 import { VerificationDocUpload } from '@/components/onboarding/verification-doc-upload'
+import { SocialHandleInput } from '@/components/profile/social-handle-input'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/phone-input'
@@ -110,8 +111,7 @@ function CreatorOnboardingRoute() {
         }
         return true
       case 3: {
-        const hasHandle = form.tiktok || form.instagram || form.youtube
-        if (!hasHandle) {
+        if (!form.tiktok && !form.instagram && !form.youtube) {
           toast.error('Add at least one social handle.')
           return false
         }
@@ -375,28 +375,28 @@ function CreatorOnboardingRoute() {
             <p className="text-xs text-zinc-500">At least one handle is required.</p>
             <div className="space-y-2">
               <Label htmlFor="tiktok">TikTok handle</Label>
-              <Input
-                id="tiktok"
+              <SocialHandleInput
+                platform="tiktok"
                 value={form.tiktok}
-                onChange={(e) => update({ tiktok: e.target.value })}
+                onChange={(v) => update({ tiktok: v })}
                 placeholder="@username"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="instagram">Instagram handle</Label>
-              <Input
-                id="instagram"
+              <SocialHandleInput
+                platform="instagram"
                 value={form.instagram}
-                onChange={(e) => update({ instagram: e.target.value })}
+                onChange={(v) => update({ instagram: v })}
                 placeholder="@username"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="youtube">YouTube handle</Label>
-              <Input
-                id="youtube"
+              <SocialHandleInput
+                platform="youtube"
                 value={form.youtube}
-                onChange={(e) => update({ youtube: e.target.value })}
+                onChange={(v) => update({ youtube: v })}
                 placeholder="@channel"
               />
             </div>

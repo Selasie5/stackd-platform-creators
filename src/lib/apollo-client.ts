@@ -7,7 +7,23 @@ const httpLink = new HttpLink({
 
 export const apolloClient = new ApolloClient({
   link: httpLink,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          liveContest: {
+            read(_, { args, toReference }) {
+              return toReference({ __typename: 'Contest', id: args?.id })
+            },
+          },
+        },
+      },
+      Contest: { keyFields: ['id'] },
+      CreatorWallet: { keyFields: ['id'] },
+      Payment: { keyFields: ['id'] },
+      Withdrawal: { keyFields: ['id'] },
+    },
+  }),
   defaultOptions: {
     watchQuery: {
       fetchPolicy: 'cache-and-network',

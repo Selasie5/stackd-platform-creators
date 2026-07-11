@@ -5,6 +5,7 @@ export const UPDATE_CREATOR_PROFILE_MUTATION = gql`
     updateCreatorProfile(input: $input) {
       id
       fullName
+      profileImage
       isProfileComplete
       kycStatus
     }

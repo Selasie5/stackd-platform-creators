@@ -1,62 +1,72 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMe } from '@/hooks/use-auth'
-import { useMyCreatorWallet } from '@/hooks/use-wallet'
-import { formatCurrency, parseWalletAmount } from '@/lib/currency'
+import { EarningsSummaryCard } from '@/components/dashboard/overview/earnings-summary-card'
+import { LeaderboardPositionList } from '@/components/dashboard/overview/leaderboard-position-list'
+import { LiveOpportunitiesPreview } from '@/components/dashboard/overview/live-opportunities-preview'
+import { NewCreatorBanner } from '@/components/dashboard/overview/new-creator-banner'
+import { RecentActivityList } from '@/components/dashboard/overview/recent-activity-list'
+import { StatsRow } from '@/components/dashboard/overview/stats-row'
+import { useDashboardOverview } from '@/hooks/use-dashboard-overview'
+import { requiresVerification } from '@/lib/kyc'
 
 export const Route = createFileRoute('/dashboard/overview')({
   component: OverviewRoute,
 })
 
 function OverviewRoute() {
-  const { data: meData } = useMe()
-  const { data: walletData } = useMyCreatorWallet()
-  const creator = meData?.me?.creator
-  const wallet = walletData?.myCreatorWallet
+  const {
+    loading,
+    kycStatus,
+    kycApproved,
+    isNewCreator,
+    earnings,
+    stats,
+    leaderboard,
+    opportunities,
+    recentActivity,
+    payments,
+  } = useDashboardOverview()
+
+  const locked = requiresVerification(kycStatus)
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-6 text-sm text-zinc-500">
+        Loading your overview…
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-          Welcome back{creator?.fullName ? `, ${creator.fullName.split(' ')[0]}` : ''}
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Track your earnings, discover opportunities, and manage your creator profile.
-        </p>
-      </div>
+    <div className="px-5 py-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+        {isNewCreator && kycApproved && <NewCreatorBanner />}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            Available balance
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {formatCurrency(parseWalletAmount(wallet?.availableBalance), wallet?.currency)}
-          </p>
-          <p className="mt-1 text-xs text-zinc-400">
-            {wallet?.status === 'frozen' ? 'Complete KYC to unlock withdrawals' : 'Ready to withdraw'}
-          </p>
+        <StatsRow
+          activeSubmissions={stats.activeSubmissions}
+          contestsEntered={stats.contestsEntered}
+          shortlistedCount={stats.shortlistedCount}
+          winRatePercent={stats.winRatePercent}
+          locked={locked}
+        />
+
+        <EarningsSummaryCard
+          totalLifetime={earnings.totalLifetime}
+          pendingPayout={earnings.pendingPayout}
+          paidOut={earnings.paidOut}
+          currency={earnings.currency}
+          payments={payments}
+          payoutDelayed={earnings.payoutDelayed}
+          locked={locked}
+        />
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-stretch">
+          <div className="flex flex-col gap-8">
+            <LeaderboardPositionList entries={leaderboard} locked={locked} />
+            <LiveOpportunitiesPreview opportunities={opportunities} locked={locked} />
+          </div>
+
+          <RecentActivityList items={recentActivity} locked={locked} className="min-h-full" />
         </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Total earned</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {formatCurrency(parseWalletAmount(wallet?.totalEarned), wallet?.currency)}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">KYC status</p>
-          <p className="mt-2 text-2xl font-semibold capitalize text-zinc-900">
-            {creator?.kycStatus?.replace(/_/g, ' ') ?? 'Not started'}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/60 p-8 text-center">
-        <p className="text-sm font-medium text-zinc-700">Opportunities coming soon</p>
-        <p className="mt-1 text-sm text-zinc-500">
-          Paid campaigns and brand briefs will appear here once you are verified.
-        </p>
       </div>
     </div>
   )

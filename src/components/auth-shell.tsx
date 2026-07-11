@@ -119,11 +119,11 @@ export function AuthShell({
           {footer ?? (
             <p className="mt-5 text-center text-xs leading-relaxed text-zinc-500">
               By continuing, you agree to Stackd&apos;s{' '}
-              <Link to="/" className="text-blue-600 underline underline-offset-2">
+              <Link to="/" className="font-medium text-zinc-600 underline underline-offset-2 hover:text-zinc-900">
                 Terms of Service
               </Link>{' '}
               &amp;{' '}
-              <Link to="/" className="text-blue-600 underline underline-offset-2">
+              <Link to="/" className="font-medium text-zinc-600 underline underline-offset-2 hover:text-zinc-900">
                 Privacy Policy
               </Link>
             </p>

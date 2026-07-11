@@ -1,0 +1,161 @@
+import { AlertCircle, Send } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  formatMessageTimestamp,
+  formatReferenceLabel,
+  getInitials,
+  type ConversationPreview,
+  type ThreadMessage,
+} from '@/lib/messaging-utils'
+import { cn } from '@/lib/utils'
+
+function MessageBubble({
+  message,
+  isOwn,
+}: {
+  message: ThreadMessage
+  isOwn: boolean
+}) {
+  const failed = message.status === 'failed'
+  const sending = message.status === 'sending'
+
+  return (
+    <div className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}>
+      <div className={cn('max-w-[75%]', isOwn ? 'items-end' : 'items-start')}>
+        <div
+          className={cn(
+            'rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
+            isOwn
+              ? 'rounded-br-md bg-zinc-900 text-white'
+              : 'rounded-bl-md bg-zinc-100 text-zinc-900',
+            failed && 'ring-1 ring-red-200',
+            sending && 'opacity-70',
+          )}
+        >
+          {message.body}
+        </div>
+        <div
+          className={cn(
+            'mt-1 flex items-center gap-2 text-[11px] text-zinc-400',
+            isOwn ? 'justify-end' : 'justify-start',
+          )}
+        >
+          <span>{formatMessageTimestamp(message.createdAt)}</span>
+          {sending ? <span>Sending…</span> : null}
+          {failed ? (
+            <span className="inline-flex items-center gap-1 text-red-600">
+              <AlertCircle className="h-3 w-3" />
+              Failed
+            </span>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ConversationThread({
+  conversation,
+  messages,
+  currentUserId,
+  loading,
+  draft,
+  onDraftChange,
+  onSend,
+  sending,
+}: {
+  conversation?: ConversationPreview
+  messages: ThreadMessage[]
+  currentUserId?: string
+  loading?: boolean
+  draft: string
+  onDraftChange: (value: string) => void
+  onSend: () => void
+  sending?: boolean
+}) {
+  if (!conversation) {
+    return (
+      <div className="flex h-full flex-1 items-center justify-center bg-white">
+        <EmptyState
+          title="Select a conversation"
+          description="Choose a brand thread to view messages for a specific campaign."
+          className="border-none bg-transparent"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full min-w-0 flex-1 flex-col bg-white">
+      <div className="border-b border-zinc-200/70 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-xs font-semibold text-white">
+            {getInitials(conversation.brandName)}
+          </span>
+          <div className="min-w-0">
+            <h2 className="truncate text-sm font-semibold text-zinc-900">{conversation.brandName}</h2>
+            <p className="truncate text-xs text-zinc-500">
+              {formatReferenceLabel(conversation.referenceType)} · {conversation.campaignTitle}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto bg-zinc-50/30 px-5 py-4">
+        {loading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-2/3" />
+            <Skeleton className="ml-auto h-10 w-1/2" />
+          </div>
+        ) : messages.length === 0 ? (
+          <EmptyState
+            title="No messages yet"
+            description="Send the first message to start this conversation."
+            className="border-none bg-transparent py-8"
+          />
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.clientId ?? message.id}
+                message={message}
+                isOwn={message.senderId === currentUserId}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-zinc-200/70 bg-white px-4 py-3">
+        <form
+          className="flex items-end gap-2"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSend()
+          }}
+        >
+          <Input
+            value={draft}
+            onChange={(event) => onDraftChange(event.target.value)}
+            placeholder="Write a message…"
+            disabled={sending}
+            className="min-h-10"
+          />
+          <Button
+            type="submit"
+            size="icon"
+            className="shrink-0"
+            disabled={sending || !draft.trim()}
+            isLoading={sending}
+            aria-label="Send message"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
+    </div>
+  )
+}

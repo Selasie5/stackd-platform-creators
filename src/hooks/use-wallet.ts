@@ -15,7 +15,6 @@ export interface CreatorWallet {
 
 export function useMyCreatorWallet(options?: { skip?: boolean }) {
   return useQuery<{ myCreatorWallet: CreatorWallet }>(MY_CREATOR_WALLET_QUERY, {
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
     skip: options?.skip,
   })

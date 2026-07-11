@@ -20,6 +20,7 @@ export interface CreatorProfile {
   city?: string | null
   phone?: string | null
   bio?: string | null
+  profileImage?: string | null
   mainNiche?: string | null
   isProfileComplete: boolean
   kycStatus: string
@@ -56,7 +57,6 @@ function postLoginPath(user: User) {
 
 export function useMe() {
   return useQuery<{ me: User | null }>(ME_QUERY, {
-    fetchPolicy: 'cache-and-network',
     errorPolicy: 'ignore',
   })
 }

@@ -15,9 +15,17 @@ import { Route as RegisterRouteRouteImport } from './routes/register/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingCreatorRouteRouteImport } from './routes/onboarding/creator/route'
 import { Route as DashboardWalletRouteRouteImport } from './routes/dashboard/wallet/route'
+import { Route as DashboardSubmissionsRouteRouteImport } from './routes/dashboard/submissions/route'
 import { Route as DashboardSettingsRouteRouteImport } from './routes/dashboard/settings/route'
+import { Route as DashboardProfileRouteRouteImport } from './routes/dashboard/profile/route'
 import { Route as DashboardOverviewRouteRouteImport } from './routes/dashboard/overview/route'
 import { Route as DashboardOpportunitiesRouteRouteImport } from './routes/dashboard/opportunities/route'
+import { Route as DashboardMessagesRouteRouteImport } from './routes/dashboard/messages/route'
+import { Route as DashboardEarningsRouteRouteImport } from './routes/dashboard/earnings/route'
+import { Route as DashboardSubmissionsIdRouteRouteImport } from './routes/dashboard/submissions/$id/route'
+import { Route as DashboardContestsIdRouteRouteImport } from './routes/dashboard/contests/$id/route'
+import { Route as DashboardContestsIdSubmitRouteRouteImport } from './routes/dashboard/contests/$id/submit/route'
+import { Route as DashboardContestsIdIndexRouteRouteImport } from './routes/dashboard/contests/$id/index/route'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -49,9 +57,20 @@ const DashboardWalletRouteRoute = DashboardWalletRouteRouteImport.update({
   path: '/wallet',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardSubmissionsRouteRoute =
+  DashboardSubmissionsRouteRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardSettingsRouteRoute = DashboardSettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRouteRoute = DashboardProfileRouteRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardOverviewRouteRoute = DashboardOverviewRouteRouteImport.update({
@@ -65,28 +84,77 @@ const DashboardOpportunitiesRouteRoute =
     path: '/opportunities',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardMessagesRouteRoute = DashboardMessagesRouteRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardEarningsRouteRoute = DashboardEarningsRouteRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSubmissionsIdRouteRoute =
+  DashboardSubmissionsIdRouteRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DashboardSubmissionsRouteRoute,
+  } as any)
+const DashboardContestsIdRouteRoute =
+  DashboardContestsIdRouteRouteImport.update({
+    id: '/contests/$id',
+    path: '/contests/$id',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardContestsIdSubmitRouteRoute =
+  DashboardContestsIdSubmitRouteRouteImport.update({
+    id: '/submit',
+    path: '/submit',
+    getParentRoute: () => DashboardContestsIdRouteRoute,
+  } as any)
+const DashboardContestsIdIndexRouteRoute =
+  DashboardContestsIdIndexRouteRouteImport.update({
+    id: '/',
+    path: '',
+    getParentRoute: () => DashboardContestsIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/register': typeof RegisterRouteRoute
   '/signin': typeof SigninRouteRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/earnings': typeof DashboardEarningsRouteRoute
+  '/dashboard/messages': typeof DashboardMessagesRouteRoute
   '/dashboard/opportunities': typeof DashboardOpportunitiesRouteRoute
   '/dashboard/overview': typeof DashboardOverviewRouteRoute
+  '/dashboard/profile': typeof DashboardProfileRouteRoute
   '/dashboard/settings': typeof DashboardSettingsRouteRoute
+  '/dashboard/submissions': typeof DashboardSubmissionsRouteRouteWithChildren
   '/dashboard/wallet': typeof DashboardWalletRouteRoute
   '/onboarding/creator': typeof OnboardingCreatorRouteRoute
+  '/dashboard/contests/$id': typeof DashboardContestsIdRouteRouteWithChildren
+  '/dashboard/submissions/$id': typeof DashboardSubmissionsIdRouteRoute
+  '/dashboard/contests/$id/': typeof DashboardContestsIdIndexRouteRoute
+  '/dashboard/contests/$id/submit': typeof DashboardContestsIdSubmitRouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/register': typeof RegisterRouteRoute
   '/signin': typeof SigninRouteRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/earnings': typeof DashboardEarningsRouteRoute
+  '/dashboard/messages': typeof DashboardMessagesRouteRoute
   '/dashboard/opportunities': typeof DashboardOpportunitiesRouteRoute
   '/dashboard/overview': typeof DashboardOverviewRouteRoute
+  '/dashboard/profile': typeof DashboardProfileRouteRoute
   '/dashboard/settings': typeof DashboardSettingsRouteRoute
+  '/dashboard/submissions': typeof DashboardSubmissionsRouteRouteWithChildren
   '/dashboard/wallet': typeof DashboardWalletRouteRoute
   '/onboarding/creator': typeof OnboardingCreatorRouteRoute
+  '/dashboard/contests/$id': typeof DashboardContestsIdIndexRouteRoute
+  '/dashboard/submissions/$id': typeof DashboardSubmissionsIdRouteRoute
+  '/dashboard/contests/$id/submit': typeof DashboardContestsIdSubmitRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,11 +162,19 @@ export interface FileRoutesById {
   '/register': typeof RegisterRouteRoute
   '/signin': typeof SigninRouteRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/earnings': typeof DashboardEarningsRouteRoute
+  '/dashboard/messages': typeof DashboardMessagesRouteRoute
   '/dashboard/opportunities': typeof DashboardOpportunitiesRouteRoute
   '/dashboard/overview': typeof DashboardOverviewRouteRoute
+  '/dashboard/profile': typeof DashboardProfileRouteRoute
   '/dashboard/settings': typeof DashboardSettingsRouteRoute
+  '/dashboard/submissions': typeof DashboardSubmissionsRouteRouteWithChildren
   '/dashboard/wallet': typeof DashboardWalletRouteRoute
   '/onboarding/creator': typeof OnboardingCreatorRouteRoute
+  '/dashboard/contests/$id': typeof DashboardContestsIdRouteRouteWithChildren
+  '/dashboard/submissions/$id': typeof DashboardSubmissionsIdRouteRoute
+  '/dashboard/contests/$id/': typeof DashboardContestsIdIndexRouteRoute
+  '/dashboard/contests/$id/submit': typeof DashboardContestsIdSubmitRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,33 +183,56 @@ export interface FileRouteTypes {
     | '/register'
     | '/signin'
     | '/dashboard'
+    | '/dashboard/earnings'
+    | '/dashboard/messages'
     | '/dashboard/opportunities'
     | '/dashboard/overview'
+    | '/dashboard/profile'
     | '/dashboard/settings'
+    | '/dashboard/submissions'
     | '/dashboard/wallet'
     | '/onboarding/creator'
+    | '/dashboard/contests/$id'
+    | '/dashboard/submissions/$id'
+    | '/dashboard/contests/$id/'
+    | '/dashboard/contests/$id/submit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/register'
     | '/signin'
     | '/dashboard'
+    | '/dashboard/earnings'
+    | '/dashboard/messages'
     | '/dashboard/opportunities'
     | '/dashboard/overview'
+    | '/dashboard/profile'
     | '/dashboard/settings'
+    | '/dashboard/submissions'
     | '/dashboard/wallet'
     | '/onboarding/creator'
+    | '/dashboard/contests/$id'
+    | '/dashboard/submissions/$id'
+    | '/dashboard/contests/$id/submit'
   id:
     | '__root__'
     | '/'
     | '/register'
     | '/signin'
     | '/dashboard'
+    | '/dashboard/earnings'
+    | '/dashboard/messages'
     | '/dashboard/opportunities'
     | '/dashboard/overview'
+    | '/dashboard/profile'
     | '/dashboard/settings'
+    | '/dashboard/submissions'
     | '/dashboard/wallet'
     | '/onboarding/creator'
+    | '/dashboard/contests/$id'
+    | '/dashboard/submissions/$id'
+    | '/dashboard/contests/$id/'
+    | '/dashboard/contests/$id/submit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,11 +287,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWalletRouteRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/submissions': {
+      id: '/dashboard/submissions'
+      path: '/submissions'
+      fullPath: '/dashboard/submissions'
+      preLoaderRoute: typeof DashboardSubmissionsRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/settings': {
       id: '/dashboard/settings'
       path: '/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/overview': {
@@ -209,21 +322,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardOpportunitiesRouteRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/earnings': {
+      id: '/dashboard/earnings'
+      path: '/earnings'
+      fullPath: '/dashboard/earnings'
+      preLoaderRoute: typeof DashboardEarningsRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/submissions/$id': {
+      id: '/dashboard/submissions/$id'
+      path: '/$id'
+      fullPath: '/dashboard/submissions/$id'
+      preLoaderRoute: typeof DashboardSubmissionsIdRouteRouteImport
+      parentRoute: typeof DashboardSubmissionsRouteRoute
+    }
+    '/dashboard/contests/$id': {
+      id: '/dashboard/contests/$id'
+      path: '/contests/$id'
+      fullPath: '/dashboard/contests/$id'
+      preLoaderRoute: typeof DashboardContestsIdRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/contests/$id/submit': {
+      id: '/dashboard/contests/$id/submit'
+      path: '/submit'
+      fullPath: '/dashboard/contests/$id/submit'
+      preLoaderRoute: typeof DashboardContestsIdSubmitRouteRouteImport
+      parentRoute: typeof DashboardContestsIdRouteRoute
+    }
+    '/dashboard/contests/$id/': {
+      id: '/dashboard/contests/$id/'
+      path: ''
+      fullPath: '/dashboard/contests/$id/'
+      preLoaderRoute: typeof DashboardContestsIdIndexRouteRouteImport
+      parentRoute: typeof DashboardContestsIdRouteRoute
+    }
   }
 }
 
+interface DashboardSubmissionsRouteRouteChildren {
+  DashboardSubmissionsIdRouteRoute: typeof DashboardSubmissionsIdRouteRoute
+}
+
+const DashboardSubmissionsRouteRouteChildren: DashboardSubmissionsRouteRouteChildren =
+  {
+    DashboardSubmissionsIdRouteRoute: DashboardSubmissionsIdRouteRoute,
+  }
+
+const DashboardSubmissionsRouteRouteWithChildren =
+  DashboardSubmissionsRouteRoute._addFileChildren(
+    DashboardSubmissionsRouteRouteChildren,
+  )
+
+interface DashboardContestsIdRouteRouteChildren {
+  DashboardContestsIdIndexRouteRoute: typeof DashboardContestsIdIndexRouteRoute
+  DashboardContestsIdSubmitRouteRoute: typeof DashboardContestsIdSubmitRouteRoute
+}
+
+const DashboardContestsIdRouteRouteChildren: DashboardContestsIdRouteRouteChildren =
+  {
+    DashboardContestsIdIndexRouteRoute: DashboardContestsIdIndexRouteRoute,
+    DashboardContestsIdSubmitRouteRoute: DashboardContestsIdSubmitRouteRoute,
+  }
+
+const DashboardContestsIdRouteRouteWithChildren =
+  DashboardContestsIdRouteRoute._addFileChildren(
+    DashboardContestsIdRouteRouteChildren,
+  )
+
 interface DashboardRouteChildren {
+  DashboardEarningsRouteRoute: typeof DashboardEarningsRouteRoute
+  DashboardMessagesRouteRoute: typeof DashboardMessagesRouteRoute
   DashboardOpportunitiesRouteRoute: typeof DashboardOpportunitiesRouteRoute
   DashboardOverviewRouteRoute: typeof DashboardOverviewRouteRoute
+  DashboardProfileRouteRoute: typeof DashboardProfileRouteRoute
   DashboardSettingsRouteRoute: typeof DashboardSettingsRouteRoute
+  DashboardSubmissionsRouteRoute: typeof DashboardSubmissionsRouteRouteWithChildren
   DashboardWalletRouteRoute: typeof DashboardWalletRouteRoute
+  DashboardContestsIdRouteRoute: typeof DashboardContestsIdRouteRouteWithChildren
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardEarningsRouteRoute: DashboardEarningsRouteRoute,
+  DashboardMessagesRouteRoute: DashboardMessagesRouteRoute,
   DashboardOpportunitiesRouteRoute: DashboardOpportunitiesRouteRoute,
   DashboardOverviewRouteRoute: DashboardOverviewRouteRoute,
+  DashboardProfileRouteRoute: DashboardProfileRouteRoute,
   DashboardSettingsRouteRoute: DashboardSettingsRouteRoute,
+  DashboardSubmissionsRouteRoute: DashboardSubmissionsRouteRouteWithChildren,
   DashboardWalletRouteRoute: DashboardWalletRouteRoute,
+  DashboardContestsIdRouteRoute: DashboardContestsIdRouteRouteWithChildren,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
